@@ -1,0 +1,64 @@
+
+
+from marshmallow import Schema, fields, validate
+
+class KaryawanSchema(Schema):
+    id = fields.Str(required=True)
+    nama = fields.Str(required=True)
+    nik = fields.String(required=True)
+    id_jabatan_karyawan = fields.Str(required=True)
+    id_status_pernikahan = fields.Str(required=True)
+    alamat = fields.Str(required=True)
+    no_hp = fields.String(required=True)
+    tanggal_masuk = fields.Str(required=True)
+    awal_kontrak = fields.Date(required=True)
+    akhir_kontrak = fields.Date(required=True)
+    id_status_kerja_karyawan = fields.Str(required=True)
+    npwp = fields.Str(required=False, allow_none=True)
+    status_pajak = fields.Str(required=False, allow_none=True)
+    durasi_kontrak = fields.Int(required=False, allow_none=True)
+    agama = fields.Str(required=False, allow_none=True)
+    kondisi_akun = fields.Str(required=False, allow_none=True)
+
+    # Nested relationships
+    jabatan = fields.Nested('JabatanSchema',  dump_only=True)
+    status_pernikahan = fields.Nested('StatusPernikahanSchema', dump_only=True)
+    status_kerja = fields.Nested('StatusKerjaSchema', dump_only=True)
+
+class KaryawanCreateSchema(Schema):
+    id = fields.Str(required=False, validate=validate.Length(max=255))
+    nama = fields.Str(required=True, validate=validate.Length(min=1, max=255))
+    nik = fields.Int(required=True, validate=validate.Range(min=1))
+    id_jabatan_karyawan = fields.Str(required=True, validate=validate.Length(max=255))
+    id_status_pernikahan = fields.Str(required=True, validate=validate.Length(max=255))
+    alamat = fields.Str(required=True, validate=validate.Length(min=1, max=255))
+    no_hp = fields.Int(required=True, validate=validate.Range(min=1))
+    tanggal_masuk = fields.Str(required=True, validate=validate.Length(max=255))
+    awal_kontrak = fields.Date(required=True)
+    akhir_kontrak = fields.Date(required=True)
+    id_status_kerja_karyawan = fields.Str(required=True, validate=validate.Length(max=255))
+    npwp = fields.Str(required=False, validate=validate.Length(max=50))
+    status_pajak = fields.Str(required=False, validate=validate.Length(max=50))
+    durasi_kontrak = fields.Int(required=False, validate=validate.Range(min=0))
+    agama = fields.Str(required=False, validate=validate.Length(max=255))
+    kondisi_akun = fields.Str(required=False, validate=validate.Length(max=255))
+
+class KaryawanUpdateSchema(Schema):
+    nama = fields.Str(required=False, validate=validate.Length(min=1, max=255))
+    nik = fields.Int(required=False, validate=validate.Range(min=1))
+    id_jabatan_karyawan = fields.Str(required=False, validate=validate.Length(max=255))
+    id_status_pernikahan = fields.Str(required=False, validate=validate.Length(max=255))
+    alamat = fields.Str(required=False, validate=validate.Length(min=1, max=255))
+    no_hp = fields.Int(required=False, validate=validate.Range(min=1))
+    tanggal_masuk = fields.Str(required=False, validate=validate.Length(max=255))
+    awal_kontrak = fields.Date(required=False)
+    akhir_kontrak = fields.Date(required=False)
+    id_status_kerja_karyawan = fields.Str(required=False, validate=validate.Length(max=255))
+    npwp = fields.Str(required=False, validate=validate.Length(max=50))
+    status_pajak = fields.Str(required=False, validate=validate.Length(max=50))
+
+# Initialize schemas
+karyawan_schema = KaryawanSchema()
+karyawan_list_schema = KaryawanSchema(many=True)
+karyawan_create_schema = KaryawanCreateSchema()
+karyawan_update_schema = KaryawanUpdateSchema()

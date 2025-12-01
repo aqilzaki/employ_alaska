@@ -5,11 +5,11 @@ from marshmallow import Schema, fields, validate
 class KaryawanSchema(Schema):
     id = fields.Str(required=True)
     nama = fields.Str(required=True)
-    nik = fields.Int(required=True)
+    nik = fields.String(required=True)
     id_jabatan_karyawan = fields.Str(required=True)
     id_status_pernikahan = fields.Str(required=True)
     alamat = fields.Str(required=True)
-    no_hp = fields.Int(required=True)
+    no_hp = fields.String(required=True)
     tanggal_masuk = fields.Str(required=True)
     awal_kontrak = fields.Date(required=True)
     akhir_kontrak = fields.Date(required=True)
@@ -17,7 +17,9 @@ class KaryawanSchema(Schema):
     npwp = fields.Str(required=False, allow_none=True)
     status_pajak = fields.Str(required=False, allow_none=True)
     durasi_kontrak = fields.Int(required=False, allow_none=True)
-    
+    agama = fields.Str(required=False, allow_none=True)
+    kondisi_akun = fields.Str(required=False, allow_none=True)
+
     # Nested relationships
     jabatan = fields.Nested('JabatanSchema',  dump_only=True)
     status_pernikahan = fields.Nested('StatusPernikahanSchema', dump_only=True)
@@ -38,7 +40,8 @@ class KaryawanCreateSchema(Schema):
     npwp = fields.Str(required=False, validate=validate.Length(max=50))
     status_pajak = fields.Str(required=False, validate=validate.Length(max=50))
     durasi_kontrak = fields.Int(required=False, validate=validate.Range(min=0))
-    
+    agama = fields.Str(required=False, validate=validate.Length(max=255))
+    kondisi_akun = fields.Str(required=False, validate=validate.Length(max=255))
 
 class KaryawanUpdateSchema(Schema):
     nama = fields.Str(required=False, validate=validate.Length(min=1, max=255))

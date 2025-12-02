@@ -26,7 +26,9 @@ def create_app():
         status_pernikahan_bp,
         kondisi_akun_bp,
         agama_bp,
-        gaji_rule_bp
+        gaji_rule_bp,
+        departemen_bp,
+        gaji_setting_bp
     )
     
     app.register_blueprint(jabatan_bp, url_prefix='/api/jabatan')
@@ -36,6 +38,7 @@ def create_app():
     app.register_blueprint(kondisi_akun_bp, url_prefix='/api/kondisi-akun')
     app.register_blueprint(agama_bp, url_prefix='/api/agama')
     app.register_blueprint(gaji_rule_bp, url_prefix='/api/gaji-rule')
-
+    app.register_blueprint(departemen_bp, url_prefix='/api/departemen')
+    app.register_blueprint(gaji_setting_bp, url_prefix='/api/gaji-setting')
 
     return app

@@ -8,6 +8,7 @@ class Karyawan(db.Model):
     nik = db.Column(db.String(20), nullable=False, unique=True)
     id_status_pernikahan = db.Column(db.String(255), db.ForeignKey('status_pernikahan.id'), nullable=False)
     id_jabatan_karyawan = db.Column(db.String(255), db.ForeignKey('jabatan_karyawan.id'), nullable=False)
+    id_departemen = db.Column(db.String(255), db.ForeignKey('departemen.id'), nullable=False)
     id_kondisi_akun = db.Column(db.String(255), db.ForeignKey('kondisi_akun.id'), nullable=False)
     id_agama = db.Column(db.String(255), db.ForeignKey('agama.id'), nullable=False)
     alamat = db.Column(db.String(255), nullable=False)
@@ -26,6 +27,7 @@ class Karyawan(db.Model):
     status_kerja = db.relationship('StatusKerja', back_populates='karyawan')
     kondisi_akun = db.relationship('kondisiAkun', back_populates='karyawan')
     agama = db.relationship('Agama', back_populates='karyawan')
+    departemen = db.relationship('Departemen', back_populates='karyawan')
     
     def __repr__(self):
         return f'<Karyawan {self.nama}>'

@@ -9,6 +9,7 @@ class Jabatan(db.Model):
     # Relationship
     gaji_rules = db.relationship('GajiRule', back_populates='jabatan', lazy=True)
     karyawan = db.relationship('Karyawan', back_populates='jabatan', lazy=True)
+    gaji_setting = db.relationship('GajiSetting', back_populates='jabatan', lazy=True)
     
     def __repr__(self):
         return f'<Jabatan {self.nama_jabatan}>'

@@ -8,6 +8,7 @@ class StatusKerja(db.Model):
     
     # Relationship
     karyawan = db.relationship('Karyawan', back_populates='status_kerja', lazy=True)
+    gaji_setting = db.relationship('GajiSetting', back_populates='status_kerja', lazy=True)
     
     def __repr__(self):
         return f'<StatusKerja {self.nama_status}>'

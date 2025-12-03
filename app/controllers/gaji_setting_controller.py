@@ -38,16 +38,136 @@ class GajiSettingController:
         }), 200
 
 
+    # @staticmethod
+    # def create():
+    #     try:
+    #         body = request.json
+    #         validated = gaji_setting_create_schema.load(body)
+
+    #         last = GajiSetting.query.order_by(GajiSetting.id.desc()).first()
+
+    #         if last:
+    #             try:
+    #                 last_id_num = int(last.id.split('-')[1])
+    #                 new_id_num = last_id_num + 1
+    #             except (IndexError, ValueError):
+    #                 new_id_num = 1
+    #         else:
+    #             new_id_num = 1
+    #         new_id = f"GJ-SET-{new_id_num:04d}"
+
+    #         setting = GajiSetting(
+    #             id=new_id,
+    #             departemen_id=validated["departemen_id"],
+    #             jabatan_id=validated["jabatan_id"],
+    #             status_kerja_id=validated["status_kerja_id"],
+    #             gaji_pokok=validated["gaji_pokok"],
+    #             tunjangan_pokok=validated["tunjangan_pokok"],
+    #         )
+
+    #         db.session.add(setting)
+    #         db.session.commit()
+
+    #         # Tunjangan opsional
+    #         tunjangan_items = []
+    #         if "tunjangan_opsional" in validated:
+    #             for item in validated["tunjangan_opsional"]:
+    #              if last:
+    #                 try:
+    #                     last_id_num = int(last.id.split('-')[1])
+    #                     new_id_num = last_id_num + 1
+    #                 except (IndexError, ValueError):
+    #                     new_id_num = 1
+    #             else:
+    #                 new_id_num = 1
+    #             new_tunj_id = f"GJ-TNJ-{new_id_num:04d}"    
+                    
+    #             tun = GajiSettingTunjangan(
+    #                     id=new_tunj_id,
+    #                     gaji_setting_id=new_id,
+    #                     keterangan=item["keterangan"],
+    #                     jumlah=item["jumlah"]
+    #                 )
+    #             tunjangan_items.append(tun)
+    #             db.session.add(tun)
+
+    #         # Potongan opsional
+    #         potongan_items = []
+    #         if "potongan_opsional" in validated:
+    #             for item in validated["potongan_opsional"]:
+
+    #               if last:
+    #                 try:
+    #                     last_id_num = int(last.id.split('-')[1])
+    #                     new_id_num = last_id_num + 1
+    #                 except (IndexError, ValueError):
+    #                     new_id_num = 1
+    #             else:
+    #                 new_id_num = 1
+    #             new_pot_id = f"GJ-PTNG-{new_id_num:04d}"    
+                        
+    #             pot = GajiSettingPotongan(
+    #                     id=new_pot_id,
+    #                     gaji_setting_id=new_id,
+    #                     keterangan=item["keterangan"],
+    #                     jumlah=item["jumlah"]
+    #                 )
+    #             potongan_items.append(pot)
+    #             db.session.add(pot)
+
+    #         db.session.commit()
+
+    #         # Auto calculate total
+    #         total_tunjangan_opsional = sum([t.jumlah for t in tunjangan_items])
+    #         total_potongan_opsional = sum([p.jumlah for p in potongan_items])
+
+    #         setting.total_tunjangan_opsional = total_tunjangan_opsional
+    #         setting.total_potongan_opsional = total_potongan_opsional
+    #         setting.total_gaji = (
+    #             setting.gaji_pokok +
+    #             setting.tunjangan_pokok +
+    #             total_tunjangan_opsional -
+    #             total_potongan_opsional
+    #         )
+
+    #         db.session.commit()
+
+    #         return jsonify({
+    #             "success": True,
+    #             "message": "Setting gaji berhasil dibuat",
+    #             "data": gaji_setting_schema.dump(setting)
+    #         }), 201
+
+    #     except ValidationError as e:
+    #         return jsonify({"success": False, "errors": e.messages}), 400
+
     @staticmethod
     def create():
         try:
             body = request.json
             validated = gaji_setting_create_schema.load(body)
 
-            new_id = f"GS-{uuid.uuid4().hex[:6]}"
+            # ==========================
+            # GENERATE ID Gaji Setting
+            # ==========================
+            last = GajiSetting.query.order_by(GajiSetting.id.desc()).first()
 
+            if last:
+                try:
+                    last_num = int(last.id.split('-')[-1])
+                    new_num = last_num + 1
+                except:
+                    new_num = 1
+            else:
+                new_num = 1
+
+            setting_id = f"GJ-SET-{new_num:04d}"
+
+            # ==========================
+            # CREATE GajiSetting
+            # ==========================
             setting = GajiSetting(
-                id=new_id,
+                id=setting_id,
                 departemen_id=validated["departemen_id"],
                 jabatan_id=validated["jabatan_id"],
                 status_kerja_id=validated["status_kerja_id"],
@@ -58,26 +178,65 @@ class GajiSettingController:
             db.session.add(setting)
             db.session.commit()
 
-            # Tunjangan opsional
+            # Prepare lists
             tunjangan_items = []
+            potongan_items = []
+
+            # ==========================
+            # TUNJANGAN OPSIONAL
+            # ==========================
             if "tunjangan_opsional" in validated:
                 for item in validated["tunjangan_opsional"]:
+
+                    # generate tunjangan id
+                    tunj_last = GajiSettingTunjangan.query.order_by(
+                        GajiSettingTunjangan.id.desc()
+                    ).first()
+
+                    if tunj_last:
+                        try:
+                            last_num = int(tunj_last.id.split('-')[-1])
+                            new_num = last_num + 1
+                        except:
+                            new_num = 1
+                    else:
+                        new_num = 1
+
+                    tunjangan_id = f"GJ-TNJ-{new_num:04d}"
+
                     tun = GajiSettingTunjangan(
-                        id=str(uuid.uuid4()),
-                        gaji_setting_id=new_id,
+                        id=tunjangan_id,
+                        gaji_setting_id=setting_id,
                         keterangan=item["keterangan"],
                         jumlah=item["jumlah"]
                     )
                     tunjangan_items.append(tun)
                     db.session.add(tun)
 
-            # Potongan opsional
-            potongan_items = []
+            # ==========================
+            # POTONGAN OPSIONAL
+            # ==========================
             if "potongan_opsional" in validated:
                 for item in validated["potongan_opsional"]:
+
+                    pot_last = GajiSettingPotongan.query.order_by(
+                        GajiSettingPotongan.id.desc()
+                    ).first()
+
+                    if pot_last:
+                        try:
+                            last_num = int(pot_last.id.split('-')[-1])
+                            new_num = last_num + 1
+                        except:
+                            new_num = 1
+                    else:
+                        new_num = 1
+
+                    pot_id = f"GJ-PTN-{new_num:04d}"
+
                     pot = GajiSettingPotongan(
-                        id=str(uuid.uuid4()),
-                        gaji_setting_id=new_id,
+                        id=pot_id,
+                        gaji_setting_id=setting_id,
                         keterangan=item["keterangan"],
                         jumlah=item["jumlah"]
                     )
@@ -86,17 +245,19 @@ class GajiSettingController:
 
             db.session.commit()
 
-            # Auto calculate total
-            total_tunjangan_opsional = sum([t.jumlah for t in tunjangan_items])
-            total_potongan_opsional = sum([p.jumlah for p in potongan_items])
+            # ==========================
+            # AUTO CALCULATE TOTAL
+            # ==========================
+            total_tunjangan = sum([t.jumlah for t in tunjangan_items])
+            total_potongan = sum([p.jumlah for p in potongan_items])
 
-            setting.total_tunjangan_opsional = total_tunjangan_opsional
-            setting.total_potongan_opsional = total_potongan_opsional
+            setting.total_tunjangan_opsional = total_tunjangan
+            setting.total_potongan_opsional = total_potongan
             setting.total_gaji = (
                 setting.gaji_pokok +
                 setting.tunjangan_pokok +
-                total_tunjangan_opsional -
-                total_potongan_opsional
+                total_tunjangan -
+                total_potongan
             )
 
             db.session.commit()
@@ -109,6 +270,7 @@ class GajiSettingController:
 
         except ValidationError as e:
             return jsonify({"success": False, "errors": e.messages}), 400
+
 
 
     @staticmethod

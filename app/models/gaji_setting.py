@@ -15,7 +15,9 @@ class GajiSetting(db.Model):
     total_tunjangan_opsional = db.Column(db.Integer, default=0)
     total_potongan_opsional = db.Column(db.Integer, default=0)
     total_gaji = db.Column(db.Integer, default=0)
-
+    created_at = db.Column(db.DateTime, server_default=db.func.now())
+    updated_at = db.Column(db.DateTime, server_default=db.func.now(), onupdate=db.func.now())
+    
     # Relationship
     jabatan = db.relationship('Jabatan', back_populates='gaji_setting')
     status_kerja = db.relationship('StatusKerja', back_populates='gaji_setting')

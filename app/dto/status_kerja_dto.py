@@ -7,7 +7,6 @@ class StatusKerjaSchema(Schema):
     nama_status = fields.Str(required=True, validate=validate.Length(max=255))
 
 class StatusKerjaCreateSchema(Schema):
-    id = fields.Str(required=True, validate=validate.Length(max=255))
     nama_status = fields.Str(required=True, validate=validate.Length(min=1, max=255))
 
 class StatusKerjaUpdateSchema(Schema):

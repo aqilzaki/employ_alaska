@@ -60,6 +60,19 @@ class JabatanController:
             # Validate data
             validated_data = jabatan_create_schema.load(data)
             
+            last = Jabatan.query.order_by(Jabatan.id.desc()).first()
+
+            if last:
+                try:
+                    last_id_num = int(last.id.split('-')[1])
+                    new_id_num = last_id_num + 1
+                except (IndexError, ValueError):
+                    new_id_num = 1
+            else:
+                new_id_num = 1
+            new_id = f"JBT-{new_id_num:04d}"
+            validated_data['id'] = new_id
+
             # Check if ID already exists
             existing = Jabatan.query.get(validated_data['id'])
             if existing:

@@ -1,5 +1,3 @@
-
-
 from marshmallow import Schema, fields, validate
 
 class KaryawanSchema(Schema):

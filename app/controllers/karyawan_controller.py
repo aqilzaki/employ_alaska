@@ -12,7 +12,7 @@ from app.dto.karyawan_dto import (
     karyawan_update_schema
 )
 from marshmallow import ValidationError
-
+import traceback
 class KaryawanController:
     
     @staticmethod
@@ -75,106 +75,140 @@ class KaryawanController:
                 'message': f'Error: {str(e)}'
             }), 500
     
+
     @staticmethod
     def create():
-        """Create new karyawan with auto-generated ID"""
+        """Create new karyawan (ID manual + debug error)"""
         try:
             data = request.get_json()
-            
-            # ✅ AUTO-GENERATE ID
-            # Ambil karyawan terakhir berdasarkan ID
-            last_employee = Karyawan.query.order_by(Karyawan.id.desc()).first()
-            
-            if last_employee and last_employee.id.startswith('KRY'):
-                # Extract nomor dari ID terakhir (misal: KRY005 -> 5)
+
+            try:
+                # --- HITUNG DURASI KONTRAK ---
+                awal_kontrak = datetime.strptime(data.get('awal_kontrak'), "%Y-%m-%d").date()
+                akhir_kontrak = datetime.strptime(data.get('akhir_kontrak'), "%Y-%m-%d").date()
+                data['durasi_kontrak'] = (akhir_kontrak - awal_kontrak).days
+            except Exception as e:
+                return jsonify({
+                    "success": False,
+                    "step": "Menghitung durasi kontrak",
+                    "error": str(e),
+                    "trace": traceback.format_exc()
+                }), 400
+
+            try:
+                validated_data = karyawan_create_schema.load(data)
+            except ValidationError as e:
+                return jsonify({
+                    "success": False,
+                    "step": "Validasi schema",
+                    "message": "Validasi gagal",
+                    "errors": e.messages
+                }), 400
+            except Exception as e:
+                return jsonify({
+                    "success": False,
+                    "step": "Validasi schema (unexpected)",
+                    "error": str(e),
+                    "trace": traceback.format_exc()
+                }), 400
+
+            # ---------- CEK DUPLIKAT ID ----------
+            try:
+                existing_id = Karyawan.query.get(validated_data['id'])
+                if existing_id:
+                    return jsonify({
+                        "success": False,
+                        "step": "Cek ID duplikat",
+                        "message": "ID karyawan sudah digunakan"
+                    }), 400
+            except Exception as e:
+                return jsonify({
+                    "success": False,
+                    "step": "Cek ID duplikat",
+                    "error": str(e),
+                    "trace": traceback.format_exc()
+                }), 400
+
+            # ---------- CEK DUPLIKAT NIK ----------
+            try:
+                existing_nik = Karyawan.query.filter_by(nik=validated_data['nik']).first()
+                if existing_nik:
+                    return jsonify({
+                        "success": False,
+                        "step": "Cek NIK duplikat",
+                        "message": "NIK sudah terdaftar"
+                    }), 400
+            except Exception as e:
+                return jsonify({
+                    "success": False,
+                    "step": "Cek NIK duplikat",
+                    "error": str(e),
+                    "trace": traceback.format_exc()
+                }), 400
+
+            # ---------- VALIDASI FOREIGN KEY ----------
+            fk_checks = {
+                "id_jabatan_karyawan": "Jabatan tidak ditemukan",
+                "id_status_pernikahan": "Status pernikahan tidak ditemukan",
+                "id_status_kerja_karyawan": "Status kerja tidak ditemukan",
+            }
+
+            for key, error_message in fk_checks.items():
                 try:
-                    last_number = int(last_employee.id.replace('KRY', ''))
-                    new_number = last_number + 1
-                except ValueError:
-                    # Kalau gagal parse, mulai dari 1
-                    new_number = 1
-            else:
-                # Kalau belum ada data, mulai dari 1
-                new_number = 1
-            
-            # Format dengan leading zeros (001, 002, 003, ...)
-            new_id = f'KRY{new_number:03d}'
-            
-            # ✅ Remove 'id' dari data request (kalau ada), backend yang handle
-            if 'id' in data:
-                del data['id']
-            
-            # Set ID baru
-            data['id'] = new_id
+                    model = {
+                        "id_jabatan_karyawan": Jabatan,
+                        "id_status_pernikahan": StatusPernikahan,
+                        "id_status_kerja_karyawan": StatusKerja,
+                    }[key]
 
-           # --- HITUNG DURASI KONTRAK ---
-            awal_kontrak = datetime.strptime(data.get('awal_kontrak'), "%Y-%m-%d").date()
-            akhir_kontrak = datetime.strptime(data.get('akhir_kontrak'), "%Y-%m-%d").date()
+                    if not model.query.get(validated_data[key]):
+                        return jsonify({
+                            "success": False,
+                            "step": f"Validasi foreign key: {key}",
+                            "message": error_message
+                        }), 400
 
-            durasi_kontrak = (akhir_kontrak - awal_kontrak).days
-            data['durasi_kontrak'] = durasi_kontrak
-            
-            # Validate data
-            validated_data = karyawan_create_schema.load(data)
-            
-            # Check if NIK already exists
-            existing_nik = Karyawan.query.filter_by(nik=validated_data['nik']).first()
-            if existing_nik:
+                except Exception as e:
+                    return jsonify({
+                        "success": False,
+                        "step": f"Validasi foreign key: {key}",
+                        "error": str(e),
+                        "trace": traceback.format_exc()
+                    }), 400
+
+            # ---------- SIMPAN DATA ----------
+            try:
+                new_karyawan = Karyawan(**validated_data)
+                db.session.add(new_karyawan)
+                db.session.commit()
+            except Exception as e:
+                db.session.rollback()
                 return jsonify({
-                    'success': False,
-                    'message': 'NIK sudah terdaftar'
-                }), 400
-            
-            # Validate foreign keys
-            jabatan = Jabatan.query.get(validated_data['id_jabatan_karyawan'])
-            if not jabatan:
-                return jsonify({
-                    'success': False,
-                    'message': 'Jabatan tidak ditemukan'
-                }), 400
-            
-            status_pernikahan = StatusPernikahan.query.get(validated_data['id_status_pernikahan'])
-            if not status_pernikahan:
-                return jsonify({
-                    'success': False,
-                    'message': 'Status pernikahan tidak ditemukan'
-                }), 400
-            
-            status = StatusKerja.query.get(validated_data['id_status_kerja_karyawan'])
-            if not status:
-                return jsonify({
-                    'success': False,
-                    'message': 'Status kerja tidak ditemukan'
-                }), 400
-            
-            # Create new karyawan
-            new_karyawan = Karyawan(**validated_data)
-            db.session.add(new_karyawan)
-            db.session.commit()
-            
-            # ✅ Return simple response (avoid nested serialization error)
+                    "success": False,
+                    "step": "Insert ke database",
+                    "error": str(e),
+                    "trace": traceback.format_exc()
+                }), 500
+
             return jsonify({
-                'success': True,
-                'message': 'Karyawan berhasil ditambahkan',
-                'data': {
-                    'id': new_karyawan.id,
-                    'nama': new_karyawan.nama
+                "success": True,
+                "message": "Karyawan berhasil ditambahkan",
+                "data": {
+                    "id": new_karyawan.id,
+                    "nama": new_karyawan.nama
                 }
             }), 201
-            
-        except ValidationError as e:
-            return jsonify({
-                'success': False,
-                'message': 'Validasi gagal',
-                'errors': e.messages
-            }), 400
+
         except Exception as e:
             db.session.rollback()
             return jsonify({
-                'success': False,
-                'message': f'Error: {str(e)}'
+                "success": False,
+                "step": "General exception (outer)",
+                "error": str(e),
+                "trace": traceback.format_exc()
             }), 500
-    
+
+
     @staticmethod
     def update(id):
         """Update karyawan by ID"""

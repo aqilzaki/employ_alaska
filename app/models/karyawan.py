@@ -15,7 +15,7 @@ class Karyawan(db.Model):
     npwp = db.Column(db.String(50), nullable=True)
     status_pajak = db.Column(db.String(50), nullable=True)
     durasi_kontrak = db.Column(db.Integer, nullable=True)
-    no_hp = db.Column(db.Integer, nullable=False)
+    no_hp = db.Column(db.String(20), nullable=False)
     tanggal_masuk = db.Column(db.String(255), nullable=False)
     awal_kontrak = db.Column(db.Date, nullable=False)
     akhir_kontrak = db.Column(db.Date, nullable=False)

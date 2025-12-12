@@ -1,32 +1,17 @@
 # app/dto/karyawan_dto.py
 from marshmallow import Schema, fields, validate
+from app.dto.departemen_dto import DepartemenSchema
+from app.dto.jabatan_dto import JabatanSchema
+from app.dto.status_pernikahan_dto import StatusPernikahanSchema
+from app.dto.status_kerja_dto import StatusKerjaSchema
+from app.dto.kondisi_akun_dto import KondisiAkunSchema
+from app.dto.agama_dto import AgamaSchema
 
 #
 # OUTPUT (dump) schema - include nested relationships (dump_only)
 #
-class JabatanSchema(Schema):
-    id = fields.Str()
-    nama_jabatan = fields.Str()
 
-class StatusPernikahanSchema(Schema):
-    id = fields.Str()
-    nama = fields.Str()
 
-class StatusKerjaSchema(Schema):
-    id = fields.Str()
-    nama_status = fields.Str()
-
-class KondisiAkunSchema(Schema):
-    id = fields.Str()
-    nama = fields.Str()
-
-class AgamaSchema(Schema):
-    id = fields.Str()
-    nama = fields.Str()
-
-class DepartemenSchema(Schema):
-    id = fields.Str()
-    nama = fields.Str()
 
 class KaryawanSchema(Schema):
     """

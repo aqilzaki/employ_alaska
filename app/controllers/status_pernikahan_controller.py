@@ -64,7 +64,7 @@ class StatusPernikahanController:
 
             new_item = StatusPernikahan(
                 id=new_id,
-                nama=validated['nama_status_pernikahan']
+                nama=validated['nama']
             )
 
             db.session.add(new_item)
@@ -96,7 +96,7 @@ class StatusPernikahanController:
             validated = status_pernikahan_update_schema.load(data)
 
             if 'nama_status_pernikahan' in validated:
-                item.nama = validated['nama_status_pernikahan']
+                item.nama = validated['nama']
 
             db.session.commit()
 

@@ -31,6 +31,11 @@ def create_app():
         gaji_setting_bp
     )
     
+    from app.routes.mssql_routes.mssql_routes import mssql_bp
+    # route for MSSQL 
+    app.register_blueprint(mssql_bp, url_prefix='/api/mssql')
+
+    # routes for MYSQL managed models
     app.register_blueprint(jabatan_bp, url_prefix='/api/jabatan')
     app.register_blueprint(status_kerja_bp, url_prefix='/api/status-kerja')
     app.register_blueprint(karyawan_bp, url_prefix='/api/karyawan')

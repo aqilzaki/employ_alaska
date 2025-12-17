@@ -20,7 +20,8 @@ class Karyawan(db.Model):
     awal_kontrak = db.Column(db.Date, nullable=False)
     akhir_kontrak = db.Column(db.Date, nullable=False)
     id_status_kerja_karyawan = db.Column(db.String(255), db.ForeignKey('status_kerja_karyawan.id'), nullable=False)
-    
+    created_at = db.Column(db.DateTime, server_default=db.func.now())
+    updated_at = db.Column(db.DateTime, server_default=db.func.now(), server_onupdate=db.func.now())
     # Relationships
     status_pernikahan_rel = db.relationship('StatusPernikahan', back_populates='karyawan')
     jabatan = db.relationship('Jabatan', back_populates='karyawan')

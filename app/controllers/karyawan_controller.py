@@ -9,7 +9,8 @@ from app.dto.karyawan_dto import (
     karyawan_schema, 
     karyawan_list_schema, 
     karyawan_create_schema, 
-    karyawan_update_schema
+    karyawan_update_schema,
+    update_kondisi_akun_schema
 )
 from marshmallow import ValidationError
 import traceback
@@ -302,3 +303,51 @@ class KaryawanController:
                 'success': False,
                 'message': f'Error: {str(e)}'
             }), 500
+        
+
+    @staticmethod
+    def update_kondisi_akun_karyawan(id_karyawan):
+        """Update kondisi akun for a karyawan"""
+        try:
+            karyawan = Karyawan.query.get(id_karyawan)
+            if not karyawan:
+                return jsonify({
+                    'success': False,
+                    'message': 'Karyawan tidak ditemukan'
+                }), 404
+
+            karyawan.id_kondisi_akun = "KA-0002"  # Set to non-aktif
+            db.session.commit()
+
+            result = karyawan_schema.dump(karyawan)
+            return jsonify({
+                'success': True,
+                'message': 'Kondisi akun karyawan berhasil diupdate',
+                'data': result
+            }), 200
+
+        except Exception as e:
+            db.session.rollback()
+            return jsonify({
+                'success': False,
+                'message': f'Error: {str(e)}'
+            }), 500
+        
+    @staticmethod
+    def get_all_karyawan_by_kondisi_non_aktif():
+            """Get all karyawan by kondisi akun non-aktif"""
+            try:
+                karyawan_list = Karyawan.query.filter_by(id_kondisi_akun="KA-0002").all()
+                result = karyawan_list_schema.dump(karyawan_list)
+
+                return jsonify({
+                    'success': True,
+                    'message': 'Data karyawan berhasil diambil',
+                    'data': result
+                }), 200
+
+            except Exception as e:
+                return jsonify({
+                    'success': False,
+                    'message': f'Error: {str(e)}'
+                }), 500

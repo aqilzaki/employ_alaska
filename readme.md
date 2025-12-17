@@ -176,6 +176,12 @@ Hapus karyawan.
 
 ---
 
+# karyawan kondisi akun non aktif
+| method | ednpoint |
+| PATCH  | `/update-kondisi-akun/<string:id_karyawan>` |
+| GET  | `/get-all-karyawan-nonaktif-akun` |
+
+
 # 🔥 Realtime API (SSE)
 
 Frontend dapat menerima update realtime dari backend:

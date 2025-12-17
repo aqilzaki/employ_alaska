@@ -5,12 +5,12 @@ from app.models.karyawan import Karyawan
 from app.models.jabatan import Jabatan
 from app.models.status_kerja import StatusKerja
 from app.models.status_pernikahan import StatusPernikahan
+from app.models.kondisi_akun import kondisiAkun
 from app.dto.karyawan_dto import (
     karyawan_schema, 
     karyawan_list_schema, 
     karyawan_create_schema, 
     karyawan_update_schema,
-    update_kondisi_akun_schema
 )
 from marshmallow import ValidationError
 import traceback
@@ -246,11 +246,16 @@ class KaryawanController:
             
             if 'id_status_kerja_karyawan' in validated_data:
                 status = StatusKerja.query.get(validated_data['id_status_kerja_karyawan'])
+               
                 if not status:
                     return jsonify({
                         'success': False,
                         'message': 'Status kerja tidak ditemukan'
                     }), 400
+                if status.nama_status == 'BERHENTI':
+                   karyawan.id_kondisi_akun = "KA-0002" # Set kondisi akun to non-aktif
+                if status.nama_status in ('TETAP', 'KONTRAK'):
+                   karyawan.id_kondisi_akun = "KA-0001"
             
             # Update fields
             for key, value in validated_data.items():
@@ -316,7 +321,7 @@ class KaryawanController:
                     'message': 'Karyawan tidak ditemukan'
                 }), 404
 
-            karyawan.id_kondisi_akun = "KA-0002"  # Set to non-aktif
+            Karyawan.id_kondisi_akun = "KA-0002"  # Set to non-aktif
             db.session.commit()
 
             result = karyawan_schema.dump(karyawan)

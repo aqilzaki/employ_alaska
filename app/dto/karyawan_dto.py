@@ -84,8 +84,15 @@ class KaryawanUpdateSchema(Schema):
     akhir_kontrak = fields.Date(required=False)
     id_status_kerja_karyawan = fields.Str(required=False, validate=validate.Length(max=255))
 
+
+class update_kondisi_akun_schema(Schema):
+    id = fields.Str(required=True, validate=validate.Length(min=1, max=255))
+    id_kondisi_akun = fields.Str(required=False, validate=validate.Length(max=255))
+
+
 # Initialize schema instances
 karyawan_schema = KaryawanSchema()
 karyawan_list_schema = KaryawanSchema(many=True)
 karyawan_create_schema = KaryawanCreateSchema()
 karyawan_update_schema = KaryawanUpdateSchema()
+update_kondisi_akun_schema = update_kondisi_akun_schema()

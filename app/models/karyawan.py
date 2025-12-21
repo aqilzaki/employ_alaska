@@ -6,6 +6,7 @@ class Karyawan(db.Model):
     id = db.Column(db.String(255), primary_key=True)
     nama = db.Column(db.String(255), nullable=False)
     nik = db.Column(db.String(20), nullable=False, unique=True)
+    password = db.Column(db.String(255), nullable=False)
     id_status_pernikahan = db.Column(db.String(255), db.ForeignKey('status_pernikahan.id'), nullable=False)
     id_jabatan_karyawan = db.Column(db.String(255), db.ForeignKey('jabatan_karyawan.id'), nullable=False)
     id_departemen = db.Column(db.String(255), db.ForeignKey('departemen.id'), nullable=False)

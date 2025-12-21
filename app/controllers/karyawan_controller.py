@@ -1,6 +1,8 @@
 from flask import jsonify, request
 from app import db
 from datetime import datetime
+from werkzeug.security import generate_password_hash
+
 from app.models.karyawan import Karyawan
 from app.models.jabatan import Jabatan
 from app.models.status_kerja import StatusKerja
@@ -179,6 +181,8 @@ class KaryawanController:
 
             # ---------- SIMPAN DATA ----------
             try:
+                password_plain = "Alaska11"  # Set a default password or generate one
+                validated_data['password'] = generate_password_hash(password_plain) # In real app, hash this password
                 new_karyawan = Karyawan(**validated_data)
                 db.session.add(new_karyawan)
                 db.session.commit()

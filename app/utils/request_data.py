@@ -1,17 +1,21 @@
 from flask import request
 
 def get_request_data(include_files=False):
-    """
-    Support JSON, form-data, and files
-    """
     data = {}
 
+    # JSON (AMAN)
     if request.is_json:
-        data.update(request.get_json() or {})
-    else:
+        json_data = request.get_json(silent=True)
+        if json_data:
+            data.update(json_data)
+
+    # FORM
+    if request.form:
         data.update(request.form.to_dict())
 
+    # FILE (INI KUNCI)
     if include_files:
-        data.update(request.files.to_dict())
+        for key in request.files:
+            data[key] = request.files.get(key)
 
     return data

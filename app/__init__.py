@@ -33,7 +33,8 @@ def create_app():
         agama_bp,
         gaji_rule_bp,
         departemen_bp,
-        gaji_setting_bp
+        gaji_setting_bp,
+        absensi_operator_bp
     )
     
     from app.routes.mssql_routes.mssql_routes import mssql_bp
@@ -50,7 +51,8 @@ def create_app():
     app.register_blueprint(gaji_rule_bp, url_prefix='/api/gaji-rule')
     app.register_blueprint(departemen_bp, url_prefix='/api/departemen')
     app.register_blueprint(gaji_setting_bp, url_prefix='/api/gaji-setting')
-    
+    app.register_blueprint(absensi_operator_bp, url_prefix='/api/absensi-operator')
+
     # route for AUTH
     from app.routes.auth_routes import auth_bp
     app.register_blueprint(auth_bp, url_prefix='/api/auth')

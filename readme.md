@@ -182,6 +182,13 @@ Hapus karyawan.
 | GET  | `/get-all-karyawan-nonaktif-akun` |
 
 
+# ABSENSI OPERATOR DULU 
+|METHOD |       ENDPOINT             |  cara post |
+| POST  | `api/absensi-operator/in ` | gunakan beardtoken, trus formnya namanya foto_in
+| POST  |  `api/absensi-operator/out`|gunakan beardtoken, trus formnya namanya foto_out
+
+
+
 # 🔥 Realtime API (SSE)
 
 Frontend dapat menerima update realtime dari backend:

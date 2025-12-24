@@ -11,7 +11,7 @@ class AbsensiSchema(Schema):
 
 
 class AbsensiInSchema(Schema):
-    foto_in = fields.Raw(required=True)
+    foto_in = fields.Raw(required=True,minlength=1)
 
 
 class AbsensiOutSchema(Schema):

@@ -8,7 +8,7 @@ from app.routes.gaji_rule_routes import gaji_rule_bp
 from app.routes.departemen_routes import departemen_bp
 from app.routes.gaji_setting_routes import gaji_setting_bp
 from app.routes.absensi_operator_routes import absensi_operator_bp ,absensi_ae_bp
-from app.routes.kunjungan_routes import kunjungan_bp
+from app.routes.kunjungan_routes import kunjungan_bp , kunjungan_report_bp
 from app.routes.report_absensi_routes import report_absensi_bp
 __all__ = [
            'jabatan_bp', 
@@ -23,5 +23,6 @@ __all__ = [
            'absensi_operator_bp',
            'kunjungan_bp',
            'absensi_ae_bp',
-              'report_absensi_bp'
+            'report_absensi_bp',
+            'kunjungan_report_bp'
            ]

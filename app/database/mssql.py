@@ -5,8 +5,8 @@ def get_mssql_conn():
         "DRIVER={ODBC Driver 18 for SQL Server};"
         "SERVER=36.64.102.226,1433;"
         "DATABASE=otomax;"
-        "UID=Bangbred;"
-        "PWD=Bred081217;"
+        "UID=Aqil01;"
+        "PWD=Hidupprabowo66;"
         "Encrypt=no;"
         "TrustServerCertificate=yes;"
     )

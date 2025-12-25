@@ -198,6 +198,14 @@ Hapus karyawan.
 # untuk ketua departemen
 |  GET    | `api/absensi/report?start_date=2025-12-23&&end_date=2025-12-26 `| filter by tanggal bulan tahun
 
+
+# report kunjungan ae
+| GET |  `/api/kunjungan/report` | hrd dan ketua bisa dan pribadi 
+| GET |  `/api/kunjungan/report?tanggal=2025-01-22` | filter per hari semua bisa 
+| GET |  `/api/kunjungan/report?start_date=2025-01-01&end_date=2025-01-31` | filter per range semua bisa 
+
+
+
 # 🔥 Realtime API (SSE)
 
 Frontend dapat menerima update realtime dari backend:

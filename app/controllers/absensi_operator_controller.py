@@ -23,7 +23,7 @@ class AbsensiOperatorController:
         @staticmethod
         @jwt_required()
         @active_account_required
-        @role_required(departemen=["OPERATOR", "CS"])
+        @role_required(departemen=["OPERATOR", "CS", "ADMIN" , "AREA EKSEKUTIF"])
         def absen_in():
             identity = get_jwt_identity()
             data = get_request_data(include_files=True)

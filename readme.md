@@ -182,12 +182,21 @@ Hapus karyawan.
 | GET  | `/get-all-karyawan-nonaktif-akun` |
 
 
-# ABSENSI OPERATOR DULU 
+# ABSENSI OPERATOR dan AE 
 |METHOD |       ENDPOINT             |  cara post |
-| POST  | `api/absensi-operator/in ` | gunakan beardtoken, trus formnya namanya foto_in
+| POST  | `api/absensi-operator/in ` | gunakan beardtoken, trus formnya namanya foto_in  //untuk operator dan ae
 | POST  |  `api/absensi-operator/out`|gunakan beardtoken, trus formnya namanya foto_out
+| POST  | `api/absensi-ae/out`       | untuk ae karna ada persyaratan
 
-
+# report absensi 
+| method |
+|  GET    |`/api/absensi/report`| khusus untuk ae, operator,AREA EKSEKUTIF dengan jabatan ketua  | bisa gunakan filter dan pemilihan departemen dengan tanggal
+|  GET    | `/api/absensi/report/me`|
+# UNTUK HRD
+|  GET    | `/api/absensi/report?departemen=pilih departemen `| filter by departemen 
+|  GET    | `api/absensi/report?start_date=2025-12-23&&end_date=2025-12-26 `| filter by tanggal bulan tahun
+# untuk ketua departemen
+|  GET    | `api/absensi/report?start_date=2025-12-23&&end_date=2025-12-26 `| filter by tanggal bulan tahun
 
 # 🔥 Realtime API (SSE)
 

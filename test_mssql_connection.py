@@ -4,7 +4,7 @@ conn = get_mssql_conn()
 cursor = conn.cursor()
 
 cursor.execute("""
-    SELECT TOP 5 *
+    SELECT top 5 *
     FROM dbo.mutasi
 """)
 

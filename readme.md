@@ -200,9 +200,9 @@ Hapus karyawan.
 
 
 # report kunjungan ae
-| GET |  `/api/kunjungan/report` | hrd dan ketua bisa dan pribadi 
-| GET |  `/api/kunjungan/report?tanggal=2025-01-22` | filter per hari semua bisa 
-| GET |  `/api/kunjungan/report?start_date=2025-01-01&end_date=2025-01-31` | filter per range semua bisa 
+| GET |  `api/kunjungan-report/AE` | hrd dan ketua bisa dan pribadi 
+| GET |  `/api/kunjungan-report/AE?tanggal=2025-01-22` | filter per hari semua bisa 
+| GET |  `api/kunjungan-report/AE?start_date=2025-01-01&end_date=2025-01-31` | filter per range semua bisa 
 
 
 

@@ -28,10 +28,11 @@ class AbsensiOperatorController:
             identity = get_jwt_identity()
             data = get_request_data(include_files=True)
            
-            print("DATA KE MARSHMALLOW:", data)
-            print("FILES ASLI:", request.files)
 
             payload = absensi_in_schema.load(data)
+            # print(payload) = payload.get("longitude_in")
+            longitude_in_payload = payload.get("longitude_in")
+            latitude_in_payload = payload.get("latitude_in")
 
             foto = payload["foto_in"]
             today = date.today()
@@ -57,13 +58,15 @@ class AbsensiOperatorController:
             foto.save(os.path.join(folder, filename))
 
             foto_path = f"/static/absensi/in/{filename}"
-
+           
             data = TransaksiAbsensi(
                 id=str(uuid.uuid4()),
                 id_karyawan=identity,
                 tanggal=today,
                 jam_in=datetime.now().time(),
-                foto_in=foto_path
+                foto_in=foto_path,
+                longitude_in=longitude_in_payload,
+                latitude_in=latitude_in_payload
             )
 
             db.session.add(data)
@@ -84,6 +87,8 @@ class AbsensiOperatorController:
             request_data = get_request_data(include_files=True)
 
             payload = absensi_out_schema.load(request_data)
+            longitude_out_payload = payload.get("longitude_out")
+            latitude_out_payload = payload.get("latitude_out")
             foto = payload["foto_out"]
             today = date.today()
 
@@ -115,6 +120,8 @@ class AbsensiOperatorController:
 
             data.jam_out = datetime.now().time()
             data.foto_out = foto_path
+            data.longitude_out = longitude_out_payload
+            data.latitude_out = latitude_out_payload
             db.session.commit()
 
             return jsonify({

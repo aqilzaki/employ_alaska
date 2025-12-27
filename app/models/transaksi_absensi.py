@@ -16,7 +16,11 @@ class TransaksiAbsensi(db.Model):
 
     foto_in = db.Column(db.String(255), nullable=True)
     foto_out = db.Column(db.String(255), nullable=True)
-
+    longitude_in = db.Column(db.Float, nullable=True)
+    latitude_in = db.Column(db.Float, nullable=True)
+    longitude_out = db.Column(db.Float, nullable=True)
+    latitude_out = db.Column(db.Float, nullable=True)
+    
     created_at = db.Column(db.DateTime, server_default=db.func.now())
     updated_at = db.Column(
         db.DateTime,

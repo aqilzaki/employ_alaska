@@ -22,9 +22,11 @@ class AbsensiAEController:
         identity = get_jwt_identity()
         request_data = get_request_data(include_files=True)
         payload = absensi_out_schema.load(request_data)  # Jika ada validasi tambahan, bisa ditambahkan di sini
+        latitude_out_payload = payload.get("latitude_out")
+        longitude_out_payload = payload.get("longitude_out")
         foto = payload["foto_out"]
         today = date.today()
-
+    
         # =====================
         # CEK ABSENSI
         # =====================
@@ -81,6 +83,8 @@ class AbsensiAEController:
         # =====================
         absensi.jam_out = datetime.now().time()
         absensi.foto_out = foto_path
+        absensi.longitude_out = longitude_out_payload
+        absensi.latitude_out = latitude_out_payload
         db.session.commit()
 
         return jsonify({

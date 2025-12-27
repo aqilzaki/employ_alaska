@@ -8,6 +8,10 @@ class AbsensiSchema(Schema):
     jam_out = fields.Time(allow_none=True)
     foto_in = fields.Str(allow_none=True)
     foto_out = fields.Str(allow_none=True)
+    longitude_in = fields.Float(allow_none=True)
+    latitude_in = fields.Float(allow_none=True)
+    longitude_out = fields.Float(allow_none=True)
+    latitude_out = fields.Float(allow_none=True)
 
 # =====================
 # ABSENSI REPORT (JOIN)
@@ -21,6 +25,11 @@ class ReportAbsensiSchema(Schema):
 
     foto_in = fields.Str(allow_none=True)
     foto_out = fields.Str(allow_none=True)
+
+    longitude_in = fields.Float(allow_none=True)
+    latitude_in = fields.Float(allow_none=True)
+    longitude_out = fields.Float(allow_none=True)
+    latitude_out = fields.Float(allow_none=True)
 
     # ===== KARYAWAN =====
     id_karyawan = fields.Str(attribute="karyawan.id")
@@ -37,10 +46,14 @@ class ReportAbsensiSchema(Schema):
 
 class AbsensiInSchema(Schema):
     foto_in = fields.Raw(required=True,minlength=1)
-
+    longitude_in = fields.Float(allow_none=True)
+    latitude_in = fields.Float(allow_none=True)
+ 
 
 class AbsensiOutSchema(Schema):
     foto_out = fields.Raw(required=True)
+    longitude_out = fields.Float(allow_none=True)
+    latitude_out = fields.Float(allow_none=True)
 
 
 absensi_schema = AbsensiSchema()

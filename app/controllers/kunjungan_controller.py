@@ -51,10 +51,10 @@ class KunjunganController:
         # =====================
         # VALIDASI FOTO
         # =====================
-        if len(kunjungan.fotos) >= 5:
+        if len(kunjungan.fotos) >= 10:
             return jsonify({
                 "success": False,
-                "message": "Maksimal 5 foto kunjungan per hari"
+                "message": "Maksimal 10 foto kunjungan per hari"
             }), 400
 
         # =====================

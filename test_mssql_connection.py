@@ -1,15 +1,6 @@
-from app.database.mssql import get_mssql_conn
+from app.utils.mssql import get_mssql_conn
 
 conn = get_mssql_conn()
-cursor = conn.cursor()
-
-cursor.execute("""
-    SELECT top 5 *
-    FROM dbo.mutasi
-""")
-
-rows = cursor.fetchall()
-for row in rows:
-    print(row)
-
+print("MSSQL CONNECTED")
 conn.close()
+print("MSSQL CONNECTION CLOSED")

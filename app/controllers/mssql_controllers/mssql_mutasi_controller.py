@@ -1,7 +1,7 @@
 from flask import jsonify, request
 from datetime import date
 from calendar import monthrange
-from app.database.mssql import get_mssql_conn
+from app.utils.mssql import get_mssql_conn
 # helpers
 def to_float(val, default=0.0):
         try:

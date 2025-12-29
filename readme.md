@@ -175,39 +175,56 @@ Hapus karyawan.
 | GET | `/gaji-setting/{id}/hitung` |
 
 ---
-
-# karyawan kondisi akun non aktif
-| method | ednpoint |
+🔹 Manajemen Kondisi Akun Karyawan
+| Method | Endpoint                                    |
+| ------ | ------------------------------------------- |
 | PATCH  | `/update-kondisi-akun/<string:id_karyawan>` |
-| GET  | `/get-all-karyawan-nonaktif-akun` |
+| GET    | `/get-all-karyawan-nonaktif-akun`           |
 
+🔹 Absensi Operator & AE
+📍 Absensi Operator
+| Method | Endpoint                    | Keterangan                                                |
+| ------ | --------------------------- | --------------------------------------------------------- |
+| POST   | `/api/absensi-operator/in`  | Gunakan **Bearer Token**, form-data dengan key `foto_in`  |
+| POST   | `/api/absensi-operator/out` | Gunakan **Bearer Token**, form-data dengan key `foto_out` |
 
-# ABSENSI OPERATOR dan AE 
-|METHOD |       ENDPOINT             |  cara post |
-| POST  | `api/absensi-operator/in ` | gunakan beardtoken, trus formnya namanya foto_in |
-| POST  |  `api/absensi-operator/out`|gunakan beardtoken, trus formnya namanya foto_out |
-| POST  | `api/absensi-ae/out`       | untuk ae karna ada persyaratan |
+📍 Absensi AE
+| Method | Endpoint              | Keterangan                            |
+| ------ | --------------------- | ------------------------------------- |
+| POST   | `/api/absensi-ae/out` | Khusus AE dengan persyaratan tertentu |
 
-# report absensi 
-| method |
-|  GET    |`/api/absensi/report`| khusus untuk ae, operator,AREA EKSEKUTIF dengan jabatan ketua  | bisa gunakan filter dan pemilihan departemen dengan tanggal |
-|  GET    | `/api/absensi/report/me`|
-# UNTUK HRD
-|  GET    | `/api/absensi/report?departemen=pilih departemen `| filter by departemen |
-|  GET    | `api/absensi/report?start_date=2025-12-23&&end_date=2025-12-26 `| filter by tanggal bulan tahun |
-# untuk ketua departemen
-|  GET    | `api/absensi/report?start_date=2025-12-23&&end_date=2025-12-26 `| filter by tanggal bulan tahun |
+🔹 Report Absensi
+📍 Akses Umum
+(Dapat diakses oleh AE, Operator, Area Eksekutif (Ketua))
+| Method | Endpoint                 | Keterangan                            |
+| ------ | ------------------------ | ------------------------------------- |
+| GET    | `/api/absensi/report`    | Mendukung filter tanggal & departemen |
+| GET    | `/api/absensi/report/me` | Report absensi milik sendiri          |
 
+📍 Akses HRD
+| Method | Endpoint                                                        | Keterangan                         |
+| ------ | --------------------------------------------------------------- | ---------------------------------- |
+| GET    | `/api/absensi/report?departemen={nama_departemen}`              | Filter berdasarkan departemen      |
+| GET    | `/api/absensi/report?start_date=YYYY-MM-DD&end_date=YYYY-MM-DD` | Filter berdasarkan rentang tanggal |
 
-# report kunjungan ae
-| GET |  `api/kunjungan-report/AE` | hrd dan ketua bisa dan pribadi | 
-| GET |  `/api/kunjungan-report/AE?tanggal=2025-01-22` | filter per hari semua bisa |
-| GET |  `api/kunjungan-report/AE?start_date=2025-01-01&end_date=2025-01-31` | filter per range semua bisa | 
+📍 Akses Ketua Departemen
+| Method | Endpoint                                                        | Keterangan                         |
+| ------ | --------------------------------------------------------------- | ---------------------------------- |
+| GET    | `/api/absensi/report?start_date=YYYY-MM-DD&end_date=YYYY-MM-DD` | Filter berdasarkan rentang tanggal |
 
+🔹 Report Kunjungan AE
+| Method | Endpoint                                                             | Keterangan                           |
+| ------ | -------------------------------------------------------------------- | ------------------------------------ |
+| GET    | `/api/kunjungan-report/AE`                                           | Akses HRD, Ketua, dan AE (pribadi)   |
+| GET    | `/api/kunjungan-report/AE?tanggal=YYYY-MM-DD`                        | Filter kunjungan per hari            |
+| GET    | `/api/kunjungan-report/AE?start_date=YYYY-MM-DD&end_date=YYYY-MM-DD` | Filter kunjungan per rentang tanggal |
 
+🔐 Authentication
+Semua endpoint yang dilindungi wajib menggunakan Bearer Token
+Token dikirim melalui header:
+Authorization: Bearer <token>
 
-
-<!-- mssql endpoint  -->
+# mssql endpoint 
 | Method | Endpoint                     |
 | ------ | ---------------------------- |
 | GET    | `api/mssql/laporan/transaksi/bulanan` |

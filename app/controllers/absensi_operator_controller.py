@@ -30,7 +30,6 @@ class AbsensiOperatorController:
            
 
             payload = absensi_in_schema.load(data)
-            # print(payload) = payload.get("longitude_in")
             longitude_in_payload = payload.get("longitude_in")
             latitude_in_payload = payload.get("latitude_in")
 

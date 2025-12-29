@@ -1,0 +1,16 @@
+# env files
+.env
+.env.*
+
+# python
+venv/
+__pycache__/
+*.pyc
+*.pyo
+
+# vscode
+.vscode/
+
+# os
+.DS_Store
+Thumbs.db

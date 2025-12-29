@@ -10,6 +10,9 @@ from app.routes.gaji_setting_routes import gaji_setting_bp
 from app.routes.absensi_operator_routes import absensi_operator_bp ,absensi_ae_bp
 from app.routes.kunjungan_routes import kunjungan_bp , kunjungan_report_bp
 from app.routes.report_absensi_routes import report_absensi_bp
+from app.routes.izin_routes import izin_bp
+
+
 __all__ = [
            'jabatan_bp', 
            'status_kerja_bp',
@@ -24,5 +27,6 @@ __all__ = [
            'kunjungan_bp',
            'absensi_ae_bp',
             'report_absensi_bp',
-            'kunjungan_report_bp'
+            'kunjungan_report_bp',
+            'izin_bp'
            ]

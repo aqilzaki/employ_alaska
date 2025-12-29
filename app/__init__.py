@@ -38,12 +38,15 @@ def create_app():
         kunjungan_bp,
         absensi_ae_bp,
         report_absensi_bp,
-        kunjungan_report_bp
+        kunjungan_report_bp,
+        izin_bp
     )
     
     from app.routes.mssql_routes.mssql_routes import mssql_bp
+    from app.routes.mssql_routes.mssql_routes import laporan_bp
     # route for MSSQL 
     app.register_blueprint(mssql_bp, url_prefix='/api/mssql')
+    app.register_blueprint(laporan_bp, url_prefix='/api/laporan')
 
     # routes for MYSQL managed models
     app.register_blueprint(jabatan_bp, url_prefix='/api/jabatan')
@@ -60,6 +63,7 @@ def create_app():
     app.register_blueprint(absensi_ae_bp, url_prefix='/api/absensi-ae')
     app.register_blueprint(report_absensi_bp, url_prefix='/api/absensi')
     app.register_blueprint(kunjungan_report_bp, url_prefix='/api/kunjungan-report') #report kunjungan
+    app.register_blueprint(izin_bp, url_prefix='/api/izin')
     
     # route for AUTH
     from app.routes.auth_routes import auth_bp

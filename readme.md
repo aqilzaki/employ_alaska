@@ -184,26 +184,52 @@ Hapus karyawan.
 
 # ABSENSI OPERATOR dan AE 
 |METHOD |       ENDPOINT             |  cara post |
-| POST  | `api/absensi-operator/in ` | gunakan beardtoken, trus formnya namanya foto_in  //untuk operator dan ae
-| POST  |  `api/absensi-operator/out`|gunakan beardtoken, trus formnya namanya foto_out
-| POST  | `api/absensi-ae/out`       | untuk ae karna ada persyaratan
+| POST  | `api/absensi-operator/in ` | gunakan beardtoken, trus formnya namanya foto_in |
+| POST  |  `api/absensi-operator/out`|gunakan beardtoken, trus formnya namanya foto_out |
+| POST  | `api/absensi-ae/out`       | untuk ae karna ada persyaratan |
 
 # report absensi 
 | method |
-|  GET    |`/api/absensi/report`| khusus untuk ae, operator,AREA EKSEKUTIF dengan jabatan ketua  | bisa gunakan filter dan pemilihan departemen dengan tanggal
+|  GET    |`/api/absensi/report`| khusus untuk ae, operator,AREA EKSEKUTIF dengan jabatan ketua  | bisa gunakan filter dan pemilihan departemen dengan tanggal |
 |  GET    | `/api/absensi/report/me`|
 # UNTUK HRD
-|  GET    | `/api/absensi/report?departemen=pilih departemen `| filter by departemen 
-|  GET    | `api/absensi/report?start_date=2025-12-23&&end_date=2025-12-26 `| filter by tanggal bulan tahun
+|  GET    | `/api/absensi/report?departemen=pilih departemen `| filter by departemen |
+|  GET    | `api/absensi/report?start_date=2025-12-23&&end_date=2025-12-26 `| filter by tanggal bulan tahun |
 # untuk ketua departemen
-|  GET    | `api/absensi/report?start_date=2025-12-23&&end_date=2025-12-26 `| filter by tanggal bulan tahun
+|  GET    | `api/absensi/report?start_date=2025-12-23&&end_date=2025-12-26 `| filter by tanggal bulan tahun |
 
 
 # report kunjungan ae
-| GET |  `api/kunjungan-report/AE` | hrd dan ketua bisa dan pribadi 
-| GET |  `/api/kunjungan-report/AE?tanggal=2025-01-22` | filter per hari semua bisa 
-| GET |  `api/kunjungan-report/AE?start_date=2025-01-01&end_date=2025-01-31` | filter per range semua bisa 
+| GET |  `api/kunjungan-report/AE` | hrd dan ketua bisa dan pribadi | 
+| GET |  `/api/kunjungan-report/AE?tanggal=2025-01-22` | filter per hari semua bisa |
+| GET |  `api/kunjungan-report/AE?start_date=2025-01-01&end_date=2025-01-31` | filter per range semua bisa | 
 
+
+
+
+<!-- mssql endpoint  -->
+| Method | Endpoint                     |
+| ------ | ---------------------------- |
+| GET    | `api/mssql/laporan/transaksi/bulanan` |
+
+| Parameter       | Keterangan                       |
+| --------------- | -------------------------------- |
+| `bulan`         | Bulan laporan (format `YYYY-MM`) |
+| `page`          | Nomor halaman                    |
+| `limit`         | Jumlah data per halaman          |
+| `kode_reseller` | Filter berdasarkan reseller      |
+| `kode_upline`   | Filter berdasarkan upline        |
+
+# untuk realtime endpointnya
+| Method | Endpoint                      |
+| ------ | ----------------------------- |
+| GET    | `api/mssql/laporan/transaksi/realtime` |
+
+| Parameter       | Keterangan                               |
+| --------------- | ---------------------------------------- |
+| `days`          | Jumlah hari ke belakang (default 7 hari) |
+| `kode_reseller` | Filter reseller                          |
+| `kode_upline`   | Filter upline                            |
 
 
 # 🔥 Realtime API (SSE)

@@ -1,186 +1,177 @@
 from flask import jsonify, request
-from datetime import date
+from datetime import date, timedelta
 from calendar import monthrange
 from app.utils.mssql import get_mssql_conn
-# helpers
-def to_float(val, default=0.0):
-        try:
-            return float(val)
-        except (TypeError, ValueError):
-            return default
 
-class MSSQLTransaksiController:
 
+class LaporanTestController:
+
+    # =====================================================
+    # 📌 LAPORAN BULANAN (HISTORICAL)
+    # =====================================================
     @staticmethod
-    def _resolve_periode(bulan: str):
-        year, month = map(int, bulan.split("-"))
-        today = date.today()
-
-        start_date = date(year, month, 1)
-        if year == today.year and month == today.month:
-            end_date = today
-            realtime = True
-        else:
-            end_date = date(year, month, monthrange(year, month)[1])
-            realtime = False
-
-        return start_date, end_date, realtime
-
-    @staticmethod
-    def get_all_realtime_by_bulan():
-     bulan = request.args.get("bulan")  # YYYY-MM
-
-     if not bulan:
-            return jsonify({
-                "success": False,
-                "message": "bulan wajib (YYYY-MM)"
-            }), 400
-
-     try:
-            start_date, end_date, realtime = MSSQLTransaksiController._resolve_periode(bulan)
-     except Exception:
-            return jsonify({
-                "success": False,
-                "message": "Format bulan harus YYYY-MM"
-            }), 400
-
-     conn = get_mssql_conn()
-     cursor = conn.cursor()
-
-     cursor.execute("""
-        SELECT
-            r.kode        AS kode_reseller,
-            r.nama        AS nama_reseller,
-            t.tgl_status,
-            t.kode        AS kode_transaksi,
-            t.kode_produk,
-            t.tujuan,
-            t.harga,
-            t.harga_beli,
-            t.harga_beli2,
-            ISNULL(t.harga, 0) - ISNULL(t.harga_beli2, t.harga_beli) AS laba,
-            t.komisi,
-            t.status
-        FROM transaksi t
-        JOIN reseller r ON r.kode = t.kode_reseller
-        WHERE
-            ISNULL(r.deleted, 0) = 0
-            AND (r.kode_upline IS NULL OR r.kode_upline IN ('', '0', '-', 'ROOT'))
-            AND t.tgl_status >= ?
-            AND t.tgl_status < DATEADD(day, 1, ?)
-        ORDER BY t.tgl_status DESC
-        """, start_date, end_date)
-
-     rows = cursor.fetchall()
-     conn.close()
-
-     data = [
-            {
-                 "kode_reseller": r[0],
-        "nama_reseller": r[1],
-        "tgl_status": str(r[2]),
-        "kode_transaksi": r[3],
-        "kode_produk": r[4],
-        "tujuan": r[5],
-        "harga": to_float(r[6]),
-        "harga_beli": to_float(r[7]),
-        "harga_beli2": to_float(r[8]),
-        "laba": to_float(r[9]),
-        "komisi": to_float(r[10]),
-        "status": r[11],
-            }
-            for r in rows
-        ]
-
-     return jsonify({
-            "success": True,
-            "realtime": realtime,
-            "periode": {
-                "bulan": bulan,
-                "start": str(start_date),
-                "end": str(end_date)
-            },
-            "count": len(data),
-            "data": data
-        }), 200
-
-
-    @staticmethod
-    def get_by_id_realtime_by_bulan(kode_transaksi):
+    def transaksi_bulanan():
+        bulan = request.args.get("bulan")           # YYYY-MM
         kode_reseller = request.args.get("kode_reseller")
-        bulan = request.args.get("bulan")  # YYYY-MM
+        kode_upline = request.args.get("kode_upline")
 
-        if not kode_reseller or not bulan:
+        page = int(request.args.get("page", 1))
+        limit = int(request.args.get("limit", 20))
+        offset = (page - 1) * limit
+
+        if not bulan:
             return jsonify({
                 "success": False,
-                "message": "kode_reseller dan bulan wajib (YYYY-MM)"
+                "message": "Parameter bulan wajib (YYYY-MM)"
             }), 400
 
-        try:
-            start_date, end_date, realtime = MSSQLTransaksiController._resolve_periode(bulan)
-        except Exception:
-            return jsonify({
-                "success": False,
-                "message": "Format bulan harus YYYY-MM"
-            }), 400
+        year, month = map(int, bulan.split("-"))
+        start_date = date(year, month, 1)
+        end_date = date(year, month, monthrange(year, month)[1])
+
+        filters = []
+        params = [start_date, end_date]
+
+        if kode_reseller:
+            filters.append("t.kode_reseller = ?")
+            params.append(kode_reseller)
+
+        if kode_upline:
+            filters.append("r.kode_upline = ?")
+            params.append(kode_upline)
+
+        where_extra = ""
+        if filters:
+            where_extra = " AND " + " AND ".join(filters)
+
+        query = f"""
+            SELECT
+                t.tgl_status,
+                t.kode_reseller,
+                r.nama AS nama_reseller,
+                r.kode_upline,
+                ru.nama AS nama_upline,
+                t.harga,
+                t.harga_beli,
+                t.harga_beli2,
+                t.komisi,
+                ISNULL(t.harga,0) - ISNULL(t.harga_beli,0) AS laba
+            FROM transaksi t
+            LEFT JOIN reseller r ON r.kode = t.kode_reseller
+            LEFT JOIN reseller ru ON ru.kode = r.kode_upline
+            WHERE t.tgl_status >= ?
+              AND t.tgl_status < DATEADD(day,1,?)
+              AND (t.status = 20 OR t.status = '20')
+              AND t.harga <> 0
+              {where_extra}
+            ORDER BY t.tgl_status
+            OFFSET ? ROWS FETCH NEXT ? ROWS ONLY
+        """
+
+        count_query = f"""
+            SELECT
+                COUNT(*) AS total_data,
+                SUM(ISNULL(t.harga,0) - ISNULL(t.harga_beli,0)) AS total_laba
+            FROM transaksi t
+            LEFT JOIN reseller r ON r.kode = t.kode_reseller
+            WHERE t.tgl_status >= ?
+              AND t.tgl_status < DATEADD(day,1,?)
+              AND (t.status = 20 OR t.status = '20')
+              AND t.harga <> 0
+              {where_extra}
+        """
 
         conn = get_mssql_conn()
         cursor = conn.cursor()
 
-        cursor.execute("""
-            SELECT
-              t.tgl_status,
-              t.kode,
-              t.kode_produk,
-              t.tujuan,
-              t.pengirim,
-              t.tipe_pengirim,
-              t.kode_reseller,
-              t.harga,
-              t.harga_beli,
-              t.harga_beli2,
-              t.komisi,
-              t.status
-            FROM transaksi t
-            WHERE t.kode = ?
-              AND t.kode_reseller = ?
-              AND t.tgl_status >= ?
-              AND t.tgl_status < DATEADD(day, 1, ?)
-              AND (t.status = 20 OR t.status = '20')
-              AND t.harga <> 0
-        """, kode_transaksi, kode_reseller, start_date, end_date)
+        # data
+        cursor.execute(query, params + [offset, limit])
+        rows = cursor.fetchall()
+        columns = [c[0] for c in cursor.description]
+        data = [dict(zip(columns, row)) for row in rows]
 
-        row = cursor.fetchone()
+        # summary
+        cursor.execute(count_query, params)
+        summary = cursor.fetchone()
+
+        cursor.close()
         conn.close()
-
-        if not row:
-            return jsonify({
-                "success": False,
-                "message": "Transaksi tidak ditemukan pada periode tersebut"
-            }), 404
-
-        data = {
-            "tgl_status": str(row[0]),
-            "kode": row[1],
-            "kode_produk": row[2],
-            "tujuan": row[3],
-            "pengirim": row[4],
-            "tipe_pengirim": row[5],
-            "kode_reseller": row[6],
-            "harga": float(row[7]),
-            "harga_beli": float(row[8]),
-            "harga_beli2": float(row[9]),
-            "komisi": float(row[10]),
-            "status": row[11],
-        }
 
         return jsonify({
             "success": True,
-            "realtime": realtime,
-            "periode": {
-                "bulan": bulan,
-                "start": str(start_date),
-                "end": str(end_date)
-            },
+            "bulan": bulan,
+            "page": page,
+            "limit": limit,
+            "total_data": summary.total_data or 0,
+            "total_laba": summary.total_laba or 0,
+            "data": data
+        }), 200
+
+    # =====================================================
+    # ⚡ REALTIME TRANSAKSI (HARI INI / 7 HARI TERAKHIR)
+    # =====================================================
+    @staticmethod
+    def transaksi_realtime():
+        days = int(request.args.get("days", 7))  # default 7 hari
+        kode_reseller = request.args.get("kode_reseller")
+        kode_upline = request.args.get("kode_upline")
+
+        end_date = date.today()
+        start_date = end_date - timedelta(days=days)
+
+        filters = []
+        params = [start_date, end_date]
+
+        if kode_reseller:
+            filters.append("t.kode_reseller = ?")
+            params.append(kode_reseller)
+
+        if kode_upline:
+            filters.append("r.kode_upline = ?")
+            params.append(kode_upline)
+
+        where_extra = ""
+        if filters:
+            where_extra = " AND " + " AND ".join(filters)
+
+        query = f"""
+            SELECT
+                t.tgl_status,
+                t.kode_reseller,
+                r.nama AS nama_reseller,
+                r.kode_upline,
+                ru.nama AS nama_upline,
+                t.harga,
+                t.harga_beli,
+                ISNULL(t.harga,0) - ISNULL(t.harga_beli,0) AS laba
+            FROM transaksi t
+            LEFT JOIN reseller r ON r.kode = t.kode_reseller
+            LEFT JOIN reseller ru ON ru.kode = r.kode_upline
+            WHERE t.tgl_status >= ?
+              AND t.tgl_status < DATEADD(day,1,?)
+              AND (t.status = 20 OR t.status = '20')
+              AND t.harga <> 0
+              {where_extra}
+            ORDER BY t.tgl_status DESC
+        """
+
+        conn = get_mssql_conn()
+        cursor = conn.cursor()
+        cursor.execute(query, params)
+
+        rows = cursor.fetchall()
+        columns = [c[0] for c in cursor.description]
+        data = [dict(zip(columns, row)) for row in rows]
+
+        cursor.close()
+        conn.close()
+
+        return jsonify({
+            "success": True,
+            "mode": "realtime",
+            "range_hari": days,
+            "start_date": str(start_date),
+            "end_date": str(end_date),
+            "total_data": len(data),
             "data": data
         }), 200

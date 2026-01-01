@@ -219,6 +219,14 @@ Hapus karyawan.
 | GET    | `/api/kunjungan-report/AE?tanggal=YYYY-MM-DD`                        | Filter kunjungan per hari            |
 | GET    | `/api/kunjungan-report/AE?start_date=YYYY-MM-DD&end_date=YYYY-MM-DD` | Filter kunjungan per rentang tanggal |
 
+🔹 Report izin 
+| Method | Endpoint                                                             | Keterangan                           |
+| ------ | -------------------------------------------------------------------- | ------------------------------------ |
+| POST   | `/api/izin/ajukan`                                                   | Akses HRD, Ketua, dan AE (pribadi)   |
+| PUT    | `/api/izin/update-status/<?id>`                                      | Akses HRD, Ketua                     |
+| GET    | `/api/izin/my-history`                                               | Akses HRD, Ketua, dan AE (pribadi)   |
+
+
 🔐 Authentication
 Semua endpoint yang dilindungi wajib menggunakan Bearer Token
 Token dikirim melalui header:

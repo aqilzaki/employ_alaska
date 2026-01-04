@@ -42,11 +42,13 @@ def create_app():
         izin_bp
     )
     
-    from app.routes.mssql_routes.mssql_routes import mssql_bp
-    from app.routes.mssql_routes.mssql_routes import laporan_bp
+    from app.routes.mssql_routes.mssql_routes import mssql_bp, laporan_bp , pivot_bp
+    
     # route for MSSQL 
     app.register_blueprint(mssql_bp, url_prefix='/api/mssql')
     app.register_blueprint(laporan_bp, url_prefix='/api/laporan')
+    app.register_blueprint(pivot_bp, url_prefix='/api/pivot')
+
 
     # routes for MYSQL managed models
     app.register_blueprint(jabatan_bp, url_prefix='/api/jabatan')

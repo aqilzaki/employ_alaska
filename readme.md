@@ -257,6 +257,120 @@ Authorization: Bearer <token>
 | `kode_upline`   | Filter upline                            |
 
 
+
+📊 Pivot Laporan Laba API (MSSQL)
+
+Endpoint ini digunakan untuk menampilkan laporan laba berbentuk pivot table seperti Excel, dengan kolom tanggal dinamis, subtotal, dan grand total.
+
+Data diambil dari database MSSQL (read-only).
+
+📌 Base URL
+/api/pivot
+
+📍 Endpoint Pivot
+| Method | Endpoint            |
+| ------ | ------------------- |
+| GET    | `/laporan/laba`     |
+| GET    | `/laporan/reseller` |
+| GET    | `/laporan/upline`   |
+| GET    | `/laporan/harian`   |
+| GET    | `/laporan/bulanan`  |
+
+⚠️ Saat ini endpoint /laporan/laba adalah pivot lengkap (upline + reseller + harian + total)
+Endpoint lain bisa dikembangkan sebagai versi ringkas/filter khusus.
+
+🔍 Query Parameters
+🔹 Parameter Wajib
+| Parameter | Tipe         | Keterangan            |
+| --------- | ------------ | --------------------- |
+| `start`   | `YYYY-MM-DD` | Tanggal awal laporan  |
+| `end`     | `YYYY-MM-DD` | Tanggal akhir laporan |
+
+🔹 Parameter Opsional (Pagination)
+| Parameter | Default | Keterangan               |
+| --------- | ------- | ------------------------ |
+| `page`    | `1`     | Halaman data             |
+| `limit`   | `20`    | Jumlah baris per halaman |
+
+📎 Contoh Request
+GET /api/pivot/laporan/laba?start=2025-11-14&end=2025-11-21&page=1&limit=15
+
+📤 Response Structure
+🔹 Meta Pagination
+"meta": {
+  "start": "2025-11-14",
+  "end": "2025-11-21",
+  "page": 1,
+  "limit": 15,
+  "total_rows": 87,
+  "total_pages": 6
+}
+
+🔹 Data Pivot (Contoh)
+{
+  "kode_upline": "AE0002",
+  "kode_reseller": "AK0008",
+  "nama_reseller": "KEI CELLULAR",
+  "14-Nov": 175,
+  "15-Nov": 2354,
+  "16-Nov": 9366,
+  "17-Nov": 299,
+  "18-Nov": 185,
+  "19-Nov": 438,
+  "20-Nov": 3454,
+  "21-Nov": 0,
+  "grand_total": 16271
+}
+
+🔹 Subtotal Reseller
+{
+  "kode_upline": "AE0002",
+  "kode_reseller": "AK0008 Total",
+  "nama_reseller": null,
+  "14-Nov": 175,
+  "15-Nov": 2354,
+  "16-Nov": 9366,
+  "17-Nov": 299,
+  "18-Nov": 185,
+  "19-Nov": 438,
+  "20-Nov": 3454,
+  "21-Nov": 0,
+  "grand_total": 16271
+}
+
+🔹 Subtotal Upline
+{
+  "kode_upline": "AE0002",
+  "kode_reseller": "TOTAL UPLINE",
+  "nama_reseller": null,
+  "14-Nov": 175,
+  "15-Nov": 23040,
+  "16-Nov": 24802,
+  "17-Nov": 27144,
+  "18-Nov": 21415,
+  "19-Nov": 54880,
+  "20-Nov": 63849,
+  "21-Nov": 79870,
+  "grand_total": 295175
+}
+
+🔹 Grand Total (Semua Data)
+{
+  "kode_upline": "GRAND TOTAL",
+  "kode_reseller": "TOTAL ALL",
+  "nama_reseller": null,
+  "14-Nov": 175,
+  "15-Nov": 23040,
+  "16-Nov": 24802,
+  "17-Nov": 27144,
+  "18-Nov": 21415,
+  "19-Nov": 54880,
+  "20-Nov": 63849,
+  "21-Nov": 79870,
+  "grand_total": 295175
+}
+
+
 # 🔥 Realtime API (SSE)
 
 Frontend dapat menerima update realtime dari backend:

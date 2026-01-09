@@ -274,51 +274,70 @@ class LaporanPivotController:
 
     @staticmethod
     def pivot_laba_harian():
-       try:
-         start = request.args.get("start")
-         end = request.args.get("end")
-         start_date = datetime.strptime(start, "%Y-%m-%d").date()
-         end_date = datetime.strptime(end, "%Y-%m-%d").date()
-       except ValueError:
-            return jsonify({
-                "success": False,
-                "message": "Format tanggal harus YYYY-MM-DD"
-            }), 400
-       
-       if not start_date or not end_date:
-            return jsonify({
-                "success": False,
-                "message": "Parameter start dan end wajib"
-            }), 400
+        """
+        Pivot laba harian:
+        - Default: hari terbaru (hari ini)
+        - Bisa filter manual: ?start=YYYY-MM-DD&end=YYYY-MM-DD
+        """
 
-       query = """
-                SELECT
-                    CAST(t.tgl_status AS DATE) AS tanggal,
-                    SUM(ISNULL(t.harga,0) - ISNULL(t.harga_beli,0)) AS total_laba
-                FROM transaksi t
-                WHERE t.tgl_status >= ?
-                AND t.tgl_status < DATEADD(day,1,?)
-                AND (t.status = 20 OR t.status = '20')
-                AND t.harga <> 0
-                GROUP BY CAST(t.tgl_status AS DATE)
-                ORDER BY tanggal
-            """
+        start = request.args.get("start")
+        end = request.args.get("end")
 
-       conn = get_mssql_conn()
-       cursor = conn.cursor()
-       cursor.execute(query, (start_date, end_date))
+        # ===============================
+        # 1. Tentukan range tanggal
+        # ===============================
+        if start and end:
+            try:
+                start_date = datetime.strptime(start, "%Y-%m-%d").date()
+                end_date = datetime.strptime(end, "%Y-%m-%d").date()
+            except ValueError:
+                return jsonify({
+                    "success": False,
+                    "message": "Format tanggal harus YYYY-MM-DD"
+                }), 400
+        else:
+            # Default → hari ini
+            start_date = date.today()
+            end_date = date.today()
 
-       rows = cursor.fetchall()
-       columns = [c[0] for c in cursor.description]
+        # ===============================
+        # 2. Query MSSQL
+        # ===============================
+        query = """
+            SELECT
+                CAST(t.tgl_status AS DATE) AS tanggal,
+                SUM(ISNULL(t.harga,0) - ISNULL(t.harga_beli,0)) AS total_laba
+            FROM transaksi t
+            WHERE t.tgl_status >= ?
+            AND t.tgl_status < DATEADD(day,1,?)
+            AND (t.status = 20 OR t.status = '20')
+            AND t.harga <> 0
+            GROUP BY CAST(t.tgl_status AS DATE)
+            ORDER BY tanggal
+        """
 
-       data = [dict(zip(columns, row)) for row in rows]
+        conn = get_mssql_conn()
+        cursor = conn.cursor()
+        cursor.execute(query, (start_date, end_date))
 
-       cursor.close()
-       conn.close()
+        rows = cursor.fetchall()
+        columns = [c[0] for c in cursor.description]
 
-       return jsonify({
-                "success": True,
-                "data": data
+        data = [dict(zip(columns, row)) for row in rows]
+
+        cursor.close()
+        conn.close()
+
+        # ===============================
+        # 3. Response
+        # ===============================
+        return jsonify({
+            "success": True,
+            "range": {
+                "start": start_date.isoformat(),
+                "end": end_date.isoformat()
+            },
+            "data": data
         }), 200
 
     @staticmethod

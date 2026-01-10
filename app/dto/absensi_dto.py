@@ -45,7 +45,7 @@ class ReportAbsensiSchema(Schema):
 
 
 class AbsensiInSchema(Schema):
-    foto_in = fields.Raw(required=True,minlength=1)
+    foto_in = fields.Raw(required=True,)
     longitude_in = fields.Float(allow_none=True)
     latitude_in = fields.Float(allow_none=True)
  

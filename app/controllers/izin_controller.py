@@ -32,9 +32,10 @@ class IzinController:
         existing = IzinOperator.query.filter(
             IzinOperator.id_karyawan == identity,
             IzinOperator.tanggal == tanggal,
-            IzinOperator.id_status.in_(
-                StatusRequest.query.with_entities(StatusRequest.id)
-            )
+            # IzinOperator.id_status.in_(
+            #     StatusRequest.query.with_entities(StatusRequest.id)
+            # )
+            IzinOperator.id_status == 2  # KODE APPROVED
         ).first()
 
         if existing:
@@ -81,7 +82,7 @@ class IzinController:
     @staticmethod
     @jwt_required()
     @active_account_required
-    @role_required(jabatan=["KETUA"])
+    @role_required(jabatan=["KETUA","AREA EKSEKUTIF", "MARKETING"])
     def update_status(id):
         identity = get_jwt_identity()
         user = Karyawan.query.get_or_404(identity)
